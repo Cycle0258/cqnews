@@ -1,0 +1,51 @@
+name: 重庆新闻抓取
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '日期 (YYYYMMDD)，留空则抓取当天'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install requests beautifulsoup4
+
+      - name: 抓取新闻
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then
+            python cqnes.py "${{ inputs.date }}"
+          else
+            python cqnes.py
+          fi
+
+      - name: 提交新闻文件
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          # 推送到 news 分支，避免污染主分支
+          git checkout -b news
+          git add -A
+          if git diff --staged --quiet; then
+            echo "没有新内容，跳过提交"
+          else
+            git commit -m "自动提交新闻 $(date +%Y%m%d)"
+            git push -u origin news --force
+          fi
