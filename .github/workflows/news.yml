@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: '日期 (YYYYMMDD)，留空则抓取当天'
+        description: '日期 (YYYYMMDD)，留空则抓取前一天'
         required: false
         default: ''
   schedule:
@@ -31,9 +31,11 @@ jobs:
       - name: 抓取新闻
         run: |
           if [ -n "${{ inputs.date }}" ]; then
+            # 手动指定日期
             python cqnes.py "${{ inputs.date }}"
           else
-            python cqnes.py
+            # 定时任务默认抓取前一天晚上的新闻联播
+            python cqnes.py "$(date -d 'yesterday' +%Y%m%d)"
           fi
 
       - name: 提交新闻文件
