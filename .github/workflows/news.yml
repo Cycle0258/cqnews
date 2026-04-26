@@ -42,13 +42,15 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          # 推送到 news 分支，避免污染主分支
-          git checkout -b news
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Cycle0258/cqnews.git
+          # 拉取远程 news 分支已有内容，避免覆盖历史
+          git fetch origin news || true
+          git checkout news
+          git pull --rebase origin news
           git add -A
           if git diff --staged --quiet; then
             echo "没有新内容，跳过提交"
           else
             git commit -m "自动提交新闻 $(date +%Y%m%d)"
-            git push -u origin news --force
+            git push -u origin news
           fi
