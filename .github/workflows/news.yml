@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 设置 Python
         uses: actions/setup-python@v5
@@ -42,6 +42,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           # 推送到 news 分支，避免污染主分支
           git checkout -b news
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Cycle0258/cqnews.git
           git add -A
           if git diff --staged --quiet; then
             echo "没有新内容，跳过提交"
