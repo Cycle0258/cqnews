@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 import urllib3
 import time
@@ -107,7 +107,7 @@ def run_task(input_date=None):
             print("日期格式错误，请使用 20260406 这种格式")
             return
     else:
-        target_date_str = datetime.now().strftime("%Y-%m-%d")
+        target_date_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
     items = get_news_list_by_date(target_date_str)
     
